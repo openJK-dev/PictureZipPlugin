@@ -1,18 +1,47 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.openjkdev.picturezipplugin</id>
-    <name>PictureZipPlugin Template</name>
-    <vendor>openjk-dev</vendor>
+    <name>PictureZipPlugin</name>
+    <vendor>DianHua Huang</vendor>
+    <version>1.0.0</version>
+
+    <!--[必选项]插件描述。简要介绍插件的功能与亮点。必须要有英文说明！
+    支持简单的 HTML 元素，例如文本格式、段落和列表等。HTML 标签必须在 `<![CDATA[]]>` 标签内部。
+    具体配置规则可参见：https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description
+  -->
+    <description>
+        <![CDATA[
+    Provides support for <a href="https://example.com/my-framework">My
+    Framework</a>.
+    <p>Includes support for:
+    <ul>
+      <li>code completion</li>
+      <li>references</li>
+      <li>refactoring</li>
+    </ul>
+    </p>
+  ]]>
+    </description>
+    <!--[必选项]插件最新版本功能或bufix简介。支持简单的 HTML 元素，HTML 标签必须在 `<![CDATA[]]>` 标签内部。-->
+    <change-notes>Initial release of the plugin.</change-notes>
 
     <depends>com.intellij.modules.platform</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.openjkdev.picturezipplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow factoryClass="com.github.openjkdev.picturezipplugin.toolWindow.MyToolWindowFactory"
+                    id="MyToolWindow"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.openjkdev.picturezipplugin.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>
+        <listener class="com.github.openjkdev.picturezipplugin.listeners.MyFrameStateListener"
+                  topic="com.intellij.ide.FrameStateListener"/>
     </applicationListeners>
+    <actions>
+        <action id="CompressImage" class="com.github.openjkdev.picturezipplugin.actions.CompressImageAction"
+                text="CompressImage" description="Compress image And add into Drawable">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+    </actions>
 </idea-plugin>
