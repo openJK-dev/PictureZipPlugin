@@ -4,6 +4,7 @@ import com.github.openjkdev.picturezipplugin.http.HttpUtils
 import com.github.openjkdev.picturezipplugin.thread.ThreadPools
 import com.github.openjkdev.picturezipplugin.utils.FileUtils
 import com.github.openjkdev.picturezipplugin.utils.FormatUtils
+import com.github.openjkdev.picturezipplugin.utils.ImageUtils
 import com.github.openjkdev.picturezipplugin.utils.MyIcons
 import com.google.gson.JsonParser
 import com.intellij.openapi.actionSystem.AnAction
@@ -12,16 +13,18 @@ import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
-import java.awt.GridLayout
+import java.awt.*
 import java.io.File
 import java.net.URL
 import java.util.*
 import javax.swing.*
+import kotlin.math.max
 
 class CompressImageAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         CustomDialog(e).apply {
             title = "压缩图片"
+            setSize(800, 540)
         }.show()
     }
 
@@ -46,19 +49,23 @@ class CompressImageAction : AnAction() {
             if (Objects.isNull(project)) {
                 return null
             }
-            val panel = JPanel()
-            panel.isVisible = true
-            panel.layout = GridLayout(0, 3).apply {
-                hgap = 10
-                vgap = 10
+            //根布局
+            val panel = JPanel().apply {
+                isVisible = true
+                setSize(800, 540)
             }
-            //列名
-            panel.add(JLabel("原图片"))
-            panel.add(JLabel("压缩后图片"))
-            panel.add(JLabel("选择图片"))
 
+            //添加列名布局
+            panel.add(JLabel("原图片").apply { preferredSize = Dimension(300, 40) })
+            panel.add(JLabel("压缩后图片").apply { preferredSize = Dimension(300, 40) })
+            panel.add(JLabel("选择图片").apply { preferredSize = Dimension(100, 40) })
+
+            //创建选择文件的按钮布局
             val fileChooserBtn = createSelectImageButton(project!!) { path, name ->
-                originImageLabel.icon = createImageIcon(path, true)
+                val point = getImageScaleSize(path, 300f)
+                val icon = createImageIcon(path, true)
+                icon.image = icon.image.getScaledInstance(point.x, point.y, Image.SCALE_SMOOTH)
+                originImageLabel.icon = icon
                 originImageInfoLabel.text = "大小：" + FileUtils.getFormatSize(FileUtils.getFolderSize(File(path)))
                 compressImageLabel.icon = MyIcons.loadIcon
                 requestCompressImage(path) { url, compress, msg ->
@@ -69,30 +76,75 @@ class CompressImageAction : AnAction() {
                         compressImageInfoLabel.text = it
                     }
                     url?.let {
-                        compressImageLabel.icon = createImageIcon(url, false)
-                        requestDownImage(it,"C:\\Users\\Administrator\\Downloads\\newPng.png"){_,msg->
-                            JOptionPane.showMessageDialog(panel, msg+"-"+project?.projectFilePath)
+                        val compressIcon = createImageIcon(url, false)
+                        compressIcon.image = compressIcon.image.getScaledInstance(point.x, point.y, Image.SCALE_SMOOTH)
+                        compressImageLabel.icon = compressIcon
+                        requestDownImage(it, "C:\\Users\\Administrator\\Downloads\\newPng.png") { _, msg ->
+                            //JOptionPane.showMessageDialog(panel, msg+"-"+project?.projectFilePath)
                         }
                     }
                 }
             }.apply {
                 setSize(100, 40)
             }
-            //原图
+
+            //添加原图布局
             panel.add(JPanel().apply {
+                preferredSize = Dimension(300, 340)
                 isVisible = true
-                layout = BoxLayout(this, BoxLayout.PAGE_AXIS)
-                add(originImageLabel)
-                add(originImageInfoLabel)
+                layout = GridBagLayout()
+                val gbc = GridBagConstraints()
+                gbc.fill = GridBagConstraints.VERTICAL
+                gbc.gridx = 0
+                gbc.gridy = 0
+
+                add(JPanel().apply {
+                    preferredSize = Dimension(300, 300)
+                    originImageLabel.apply {
+                        preferredSize = Dimension(300, 300)
+                        verticalAlignment = SwingConstants.CENTER
+                        horizontalAlignment = SwingConstants.CENTER
+                    }
+                    add(originImageLabel)
+                }, gbc)
+                gbc.gridx = 0
+                gbc.gridy = 1
+                add(originImageInfoLabel.apply {
+                    preferredSize = Dimension(300, 40)
+                    verticalAlignment = SwingConstants.CENTER
+                    horizontalAlignment = SwingConstants.CENTER
+                }, gbc)
             })
-            //压缩后图片
+
+            //添加压缩后图片的布局
             panel.add(JPanel().apply {
+                preferredSize = Dimension(300, 340)
                 isVisible = true
-                layout = BoxLayout(this, BoxLayout.PAGE_AXIS)
-                add(compressImageLabel)
-                add(compressImageInfoLabel)
+                layout = GridBagLayout()
+                val gbc = GridBagConstraints()
+                gbc.fill = GridBagConstraints.VERTICAL
+                gbc.gridx = 0
+                gbc.gridy = 0
+
+                add(JPanel().apply {
+                    preferredSize = Dimension(300, 300)
+                    compressImageLabel.apply {
+                        preferredSize = Dimension(300, 300)
+                        verticalAlignment = SwingConstants.CENTER
+                        horizontalAlignment = SwingConstants.CENTER
+                    }
+                    add(compressImageLabel)
+                }, gbc)
+                gbc.gridx = 0
+                gbc.gridy = 1
+                add(compressImageInfoLabel.apply {
+                    preferredSize = Dimension(300, 40)
+                    verticalAlignment = SwingConstants.CENTER
+                    horizontalAlignment = SwingConstants.CENTER
+                }, gbc)
             })
-            //选择图片按钮
+
+            //添加选择图片按钮布局
             panel.add(fileChooserBtn)
             return panel
         }
@@ -155,7 +207,7 @@ class CompressImageAction : AnAction() {
         /**
          * 请求下载压缩后的图片
          */
-        private fun requestDownImage(url:String,saveFile:String,callback: (Boolean, String) -> Unit) {
+        private fun requestDownImage(url: String, saveFile: String, callback: (Boolean, String) -> Unit) {
             val file = File(saveFile)
             if (!file.exists()) {
                 file.createNewFile()
@@ -170,6 +222,25 @@ class CompressImageAction : AnAction() {
                         callback.invoke(false, content)
                     }
                 }
+            }
+        }
+
+        /**
+         * 获取图片缩放尺寸
+         */
+        private fun getImageScaleSize(srcPath: String, boxSize: Float): Point {
+            var w = 0
+            var h = 0
+            ImageUtils(File(srcPath)).apply {
+                w = width
+                h = height
+            }
+            if (w <= 300 && h <= 300) {
+                return Point(w, h)
+            } else {
+                val max = max(w, h)
+                val scale = max / boxSize
+                return Point((w / scale).toInt(), (h / scale).toInt())
             }
         }
     }
