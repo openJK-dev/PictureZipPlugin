@@ -1,9 +1,9 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.openjkdev.picturezipplugin</id>
-    <name>PictureZipPlugin</name>
+    <name>AndroidImageCompression</name>
     <vendor>DianHua Huang</vendor>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
 
     <!--[必选项]插件描述。简要介绍插件的功能与亮点。必须要有英文说明！
     支持简单的 HTML 元素，例如文本格式、段落和列表等。HTML 标签必须在 `<![CDATA[]]>` 标签内部。
@@ -11,13 +11,12 @@
   -->
     <description>
         <![CDATA[
-    Provides support for <a href="https://example.com/my-framework">My
-    Framework</a>.
+    Use in Android Studio
     <p>Includes support for:
     <ul>
-      <li>code completion</li>
-      <li>references</li>
-      <li>refactoring</li>
+      <li>Compress image And add into Drawable</li>
+      <li>config save file in different drawable</li>
+      <li>auto translate file name</li>
     </ul>
     </p>
   ]]>
@@ -39,8 +38,8 @@
                   topic="com.intellij.ide.FrameStateListener"/>
     </applicationListeners>
     <actions>
-        <action id="CompressImage" class="com.github.openjkdev.picturezipplugin.actions.CompressImageAction"
-                text="CompressImage" description="Compress image And add into Drawable">
+        <action id="AndroidImageCompression" class="com.github.openjkdev.picturezipplugin.actions.CompressImageAction"
+                text="AndroidImageCompression" description="Compress image And add into Drawable">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </action>
     </actions>
