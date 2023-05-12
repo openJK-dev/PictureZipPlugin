@@ -3,6 +3,12 @@
 ![Build](https://github.com/openJK-dev/PictureZipPlugin/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+## Template ToDo list
+- [x] Compress a image.
+- [x] save compression image into config android different drawable file.
+- [x] add save file a prefix.
+- [ ] translate file name to english
+
 
 <!-- Plugin description -->
 This plugin is suitable for Android Studio (versions 221~231. *)<br>Introduction to plugin functions<br>
