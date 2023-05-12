@@ -1,9 +1,9 @@
-# PictureZipPlugin
+# AndroidImageCompression
 
 ![Build](https://github.com/openJK-dev/PictureZipPlugin/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
-## Template ToDo list
+## AndroidImageCompression ToDo list
 - [x] Compress a image.
 - [x] save compression image into config android different drawable file.
 - [x] add save file a prefix.
@@ -24,7 +24,7 @@ Automatically save in English
 
 - Using IDE built-in plugin system:
   
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "PictureZipPlugin"</kbd> >
+  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "AndroidImageCompression"</kbd> >
   <kbd>Install Plugin</kbd>
   
 - Manually:
