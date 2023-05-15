@@ -30,7 +30,7 @@ object CacheUtils {
         if (!file.exists()) {
             file.parentFile.mkdirs()
             file.createNewFile()
-            FileUtils.writeFile(file.absolutePath, """{"enableTranslate":false,"translateKey":"key","savePath":[{"name":"hdpi","path":"hdpi","select":true},{"name":"xdpi","path":"xdpi","select":false}],"prefixList":[{"preName":"无","select":true,"value":""},{"preName":"ic_","select":false,"value":"ic_"},{"preName":"bg_","select":false,"value":"bg_"}]}""")
+            FileUtils.writeFile(file.absolutePath, """{"enableTranslate":false,"translateKey":"key","translateAppId":"appId","savePath":[{"name":"hdpi","path":"hdpi","select":true},{"name":"xdpi","path":"xdpi","select":false}],"prefixList":[{"preName":"无","select":true,"value":""},{"preName":"ic_","select":false,"value":"ic_"},{"preName":"bg_","select":false,"value":"bg_"}]}""")
         }
     }
 

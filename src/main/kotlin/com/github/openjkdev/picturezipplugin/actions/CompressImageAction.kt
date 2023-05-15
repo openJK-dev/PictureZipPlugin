@@ -1,6 +1,7 @@
 package com.github.openjkdev.picturezipplugin.actions;
 
 import com.github.openjkdev.picturezipplugin.http.HttpUtils
+import com.github.openjkdev.picturezipplugin.services.BaiduTranslateService
 import com.github.openjkdev.picturezipplugin.thread.ThreadPools
 import com.github.openjkdev.picturezipplugin.utils.*
 import com.google.gson.JsonParser
@@ -39,13 +40,19 @@ class CompressImageAction : AnAction() {
         private var compressImageLabel: JLabel = createImageLabel()
         private var compressImageInfoLabel: JLabel = createImageLabel()
         private var compressImageTipLabel: JLabel = createImageLabel()
+        private var compressImageNameLabel: JLabel = createImageLabel()
 
         //缓存的图片地址
         private var cacheFile: String? = null
-        private var fileName:String?=null
+        private var fileName: String? = null
 
         init {
             init()
+        }
+
+        override fun doCancelAction() {
+            super.doCancelAction()
+            ThreadPools.instance().asyncExecutor().shutdown()
         }
 
         override fun doOKAction() {
@@ -59,20 +66,20 @@ class CompressImageAction : AnAction() {
             }
             val prefix = configBean.prefixList?.find {
                 it.select
-            }?.value?:""
-            if(savePath == null){
+            }?.value ?: ""
+            if (savePath == null) {
                 Messages.showErrorDialog("请选择图片保存路径", "温馨提示")
                 return
             }
-            if(savePath.path.isNullOrEmpty()){
+            if (savePath.path.isNullOrEmpty()) {
                 Messages.showErrorDialog("图片保存路径配置异常", "温馨提示")
                 return
             }
 
-            val destPath = savePath.path!!+File.separator+prefix+fileName
+            val destPath = savePath.path!! + File.separator + prefix + fileName
             val destFile = File(destPath)
             destFile.createNewFile()
-            FileUtils.copyFile(File(cacheFile!!),destFile)
+            FileUtils.copyFile(File(cacheFile!!), destFile)
             super.doOKAction()
 
         }
@@ -84,7 +91,7 @@ class CompressImageAction : AnAction() {
             }
             //根布局
             val boxRoot = Box.createVerticalBox().apply {
-                preferredSize = Dimension(800, 540)
+                preferredSize = Dimension(800, 600)
             }
             val panel = JPanel().apply {
                 isVisible = true
@@ -110,16 +117,38 @@ class CompressImageAction : AnAction() {
                 }
                 cacheFile = null
                 fileName = null
+                val originFile = File(path)
                 val point = getImageScaleSize(path, 300f)
                 val icon = createImageIcon(path, true)
                 icon.image = icon.image.getScaledInstance(point.x, point.y, Image.SCALE_SMOOTH)
                 originImageLabel.icon = icon
-                originImageInfoLabel.text = "大小：" + FileUtils.getFormatSize(FileUtils.getFolderSize(File(path)))
-                originImageNameLabel.text = "文件名：" + File(path).name
-                fileName = File(path).name
+                originImageInfoLabel.text = "大小：" + FileUtils.getFormatSize(FileUtils.getFolderSize(originFile))
+                originImageNameLabel.text = "原文件名：" + originFile.name
+                fileName = originFile.name
                 compressImageLabel.icon = MyIcons.loadIcon
                 compressImageInfoLabel.text = ""
                 compressImageTipLabel.text = ""
+                compressImageNameLabel.text = ""
+                requestTranslateFileName(originFile.nameWithoutExtension, originFile.extension) { transName, status ->
+                    val configBean = CacheUtils.parseConfig(CacheUtils.readConfig())
+                    val prefix = configBean.prefixList?.find {
+                        it.select
+                    }?.value ?: ""
+                    when (status) {
+                        0 -> {
+                            compressImageNameLabel.text = "保存文件名：$prefix$transName(未配置翻译)"
+                        }
+
+                        1 -> {
+                            compressImageNameLabel.text = "保存文件名：$prefix$transName(翻译失败)"
+                        }
+
+                        else -> {
+                            fileName = transName
+                            compressImageNameLabel.text = "保存文件名：$prefix$transName(翻译后)"
+                        }
+                    }
+                }
                 requestCompressImage(path) { url, compress, msg ->
                     msg?.let {
                         JOptionPane.showMessageDialog(panel, it)
@@ -230,6 +259,13 @@ class CompressImageAction : AnAction() {
                     verticalAlignment = SwingConstants.CENTER
                     horizontalAlignment = SwingConstants.CENTER
                 }, gbc)
+                gbc.gridx = 0
+                gbc.gridy = 4
+                add(JLabel().apply {
+                    preferredSize = Dimension(300, 40)
+                    verticalAlignment = SwingConstants.CENTER
+                    horizontalAlignment = SwingConstants.CENTER
+                }, gbc)
             })
 
             //添加压缩后图片的布局
@@ -273,6 +309,13 @@ class CompressImageAction : AnAction() {
                     verticalAlignment = SwingConstants.CENTER
                     horizontalAlignment = SwingConstants.CENTER
                 }, gbc)
+                gbc.gridx = 0
+                gbc.gridy = 4
+                add(compressImageNameLabel.apply {
+                    preferredSize = Dimension(300, 40)
+                    verticalAlignment = SwingConstants.CENTER
+                    horizontalAlignment = SwingConstants.CENTER
+                }, gbc)
             })
             return panel
         }
@@ -308,6 +351,26 @@ class CompressImageAction : AnAction() {
                 }
             }
             return fileChooseBtn
+        }
+
+        /**
+         * 请求翻译文件名称
+         */
+        private fun requestTranslateFileName(name: String, extension: String, callback: (String, Int) -> Unit) {
+            val configBean = CacheUtils.parseConfig(CacheUtils.readConfig())
+            if (configBean.enableTranslate == false || configBean.translateKey.isNullOrEmpty() || configBean.translateAppId.isNullOrEmpty()) {
+                callback.invoke("$name.$extension", 0)//0-没有配置翻译
+                return
+            }
+            ThreadPools.instance().asyncExecutor().execute {
+                val baiduTranslateService = BaiduTranslateService(configBean.translateAppId, configBean.translateKey)
+                val result = baiduTranslateService.parseResult(baiduTranslateService.translate(name, "zh", "en"))
+                if (result.isNullOrEmpty()) {
+                    callback.invoke("$name.$extension", 1)//翻译失败
+                } else {
+                    callback.invoke("$result.$extension", 2)//翻译成功
+                }
+            }
         }
 
         /**
@@ -418,6 +481,9 @@ class CompressImageAction : AnAction() {
                         if (jRadioButton.isSelected) {
                             prefixList.forEach { prefix ->
                                 prefix.select = prefix.preName === jRadioButton.text
+                                if (prefix.select) {
+                                    compressImageNameLabel.text = "保存文件名：${prefix.value}$fileName(翻译后)"
+                                }
                             }
                             CacheUtils.writeConfig(CacheUtils.configToJsonStr(configBean))
                         }

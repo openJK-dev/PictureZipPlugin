@@ -3,7 +3,7 @@
     <id>com.github.openjkdev.picturezipplugin</id>
     <name>AndroidImageCompression</name>
     <vendor>DianHua Huang</vendor>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <!--[必选项]插件描述。简要介绍插件的功能与亮点。必须要有英文说明！
     支持简单的 HTML 元素，例如文本格式、段落和列表等。HTML 标签必须在 `<![CDATA[]]>` 标签内部。

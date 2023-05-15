@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class ConfigBean(
         var enableTranslate: Boolean? = false,
         val translateKey: String? = "",
+        val translateAppId:String? = "",
         val savePath: List<ImagePathBean>? = null,
         val prefixList: List<PreFixBean>? = null
 )

@@ -1,5 +1,6 @@
 package com.github.openjkdev.picturezipplugin
 
+import com.github.openjkdev.picturezipplugin.services.BaiduTranslateService
 import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.openapi.components.service
 import com.intellij.psi.xml.XmlFile
@@ -36,4 +37,10 @@ class MyPluginTest : BasePlatformTestCase() {
     }
 
     override fun getTestDataPath() = "src/test/testData/rename"
+
+    fun testTranslate(){
+        val baiduTranslateService = BaiduTranslateService("20230515001678295", "4RnhHPYv9oXATf_MVBSF")
+        val result = baiduTranslateService.parseResult(baiduTranslateService.translate("好的", "zh", "en"))
+        print(result)
+    }
 }
