@@ -30,23 +30,48 @@ object CacheUtils {
         if (!file.exists()) {
             file.parentFile.mkdirs()
             file.createNewFile()
-            FileUtils.writeFile(file.absolutePath, """{"enableTranslate":false,"translateKey":"key","translateAppId":"appId","savePath":[{"name":"hdpi","path":"hdpi","select":true},{"name":"xdpi","path":"xdpi","select":false}],"prefixList":[{"preName":"无","select":true,"value":""},{"preName":"ic_","select":false,"value":"ic_"},{"preName":"bg_","select":false,"value":"bg_"}]}""")
+            FileUtils.writeFile(file.absolutePath, """{
+                |"enableTranslate":false,
+                |"translateKey":"key",
+                |"translateAppId":"appId",
+                |"savePath":[
+                |{"name":"路径别名1",
+                |"path":"路径绝对路径1",
+                |"select":true},
+                |{"name":"路径别名2",
+                |"path":"路径绝对路径2",
+                |"select":false}
+                |],
+                |"prefixList":[
+                |{"preName":"前缀别名1",
+                |"select":true,
+                |"value":"前缀1"},
+                |{"preName":"前缀别名2",
+                |"select":false,
+                |"value":"前缀2"},
+                |{"preName":"前缀别名3",
+                |"select":false,
+                |"value":"前缀3"}
+                |]
+                |}""".trimMargin())
         }
     }
 
     /**
      * 读取配置文件信息
      */
-    fun readConfig(): String {
+    fun readConfig(needFormat: Boolean = true): String {
         val file = File(CONFIG_PATH)
         if (!file.exists()) {
             resetConfig()
         }
-        val data = FileUtils.readFile(file.absolutePath)
-        if (data.isEmpty() || !JsonParser.parseString(data).isJsonObject) {
+        val data = FileUtils.readFile(file.absolutePath).replace(if (needFormat) "\n" else "", "")
+        return if (data.isEmpty() || !JsonParser.parseString(data).isJsonObject) {
             resetConfig()
+            FileUtils.readFile(file.absolutePath).replace(if (needFormat) "\n" else "", "")
+        } else {
+            data
         }
-        return FileUtils.readFile(file.absolutePath)
     }
 
     /**
@@ -76,8 +101,7 @@ object CacheUtils {
     }
 
     fun configToJsonStr(configBean: ConfigBean): String {
-        val gson = Gson()
-        return gson.toJson(configBean)
+        return configBean.toString()
     }
 
 }

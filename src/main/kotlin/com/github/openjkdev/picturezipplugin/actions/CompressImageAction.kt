@@ -181,13 +181,14 @@ class CompressImageAction : AnAction() {
                     val data = Messages.showMultilineInputDialog(project, "修改对应字段来更改相关配置" +
                             "\n属性介绍：\nenableTranslate:是否开启翻译，开启翻译后将自动将文件名翻译成英文" +
                             "\ntranslateKey:百度翻译的 Key，需要在百度翻译中申请" +
+                            "\ntranslateAppId:百度翻译的 APPId，需要在百度翻译中申请" +
                             "\nsavePath:图片压缩后将要保存的位置" +
                             "\nname:路径的名称，要绝对唯一" +
                             "\npath:保存的绝对路径" +
                             "\nprefixList:文件默认添加的前缀列表" +
                             "\npreName:前缀选项显示名称" +
                             "\nvalue:文件前缀的真实名称",
-                            "配置信息", CacheUtils.readConfig(), null, object : InputVerifier(), InputValidator {
+                            "配置信息", CacheUtils.readConfig(false), null, object : InputVerifier(), InputValidator {
                         override fun verify(input: JComponent?): Boolean {
                             return true
                         }
@@ -200,7 +201,7 @@ class CompressImageAction : AnAction() {
                             if (inputString.isNullOrEmpty()) {
                                 return false
                             }
-                            if (!JsonParser.parseString(inputString).isJsonObject) {
+                            if (!JsonParser.parseString(inputString.replace("\n", "").replace("\t", "")).isJsonObject) {
                                 return false
                             }
                             return true
@@ -481,7 +482,7 @@ class CompressImageAction : AnAction() {
                         if (jRadioButton.isSelected) {
                             prefixList.forEach { prefix ->
                                 prefix.select = prefix.preName === jRadioButton.text
-                                if (prefix.select) {
+                                if (prefix.select && !fileName.isNullOrEmpty()) {
                                     compressImageNameLabel.text = "保存文件名：${prefix.value}$fileName(翻译后)"
                                 }
                             }
