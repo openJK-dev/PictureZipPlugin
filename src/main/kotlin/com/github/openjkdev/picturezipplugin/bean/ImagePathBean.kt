@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 data class ImagePathBean(var name: String?, var path: String?, var select: Boolean) {
     override fun toString(): String {
         return """{
-            |"name":$name, 
-            |"path":$path, 
-            |"select":$select
+            |"name":"$name", 
+            |"path":"$path", 
+            |"select":"$select"
             |}""".trimMargin()
     }
 }

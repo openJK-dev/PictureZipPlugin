@@ -15,9 +15,9 @@ data class ConfigBean(
         val prefixListStr = prefixList?.map{it.toString()}?.joinToString(",") { it }
 
         return """{
-            |"enableTranslate":$enableTranslate,
-            |"translateKey":$translateKey, 
-            |"translateAppId":$translateAppId, 
+            |"enableTranslate":"$enableTranslate",
+            |"translateKey":"$translateKey", 
+            |"translateAppId":"$translateAppId", 
             |"savePath":[$savePathStr], 
             |"prefixList":[$prefixListStr]
             |}""".trimMargin()
