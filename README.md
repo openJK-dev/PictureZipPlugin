@@ -7,7 +7,7 @@
 - [x] Compress a image.
 - [x] save compression image into config android different drawable file.
 - [x] add save file a prefix.
-- [ ] translate file name to english
+- [x] translate file name to english
 
 
 <!-- Plugin description -->
